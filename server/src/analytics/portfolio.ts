@@ -1,19 +1,46 @@
 import { getDb } from '../db/connection.js';
 import { getEthBalance } from '../etherscan/client.js';
-import { weiToEthNumber, tokenToDecimalNumber, isStablecoin } from '../utils/ethPrice.js';
+import { weiToEthNumber, tokenToDecimalNumber } from '../utils/ethPrice.js';
 import type { PortfolioAsset, PortfolioSnapshot } from '@cripto-ir/shared';
+
+// ── Verified stablecoin contracts (Ethereum mainnet, canonical only) ──────────
+// Identity key: contract_address.toLowerCase()
+// Tokens NOT in this list get usd_value = 0 even if their symbol says "USDC".
+const VERIFIED_STABLECOINS: Record<string, number> = {
+  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 1,  // USDC  (Circle)
+  '0xdac17f958d2ee523a2206206994597c13d831ec7': 1,  // USDT  (Tether)
+  '0x6b175474e89094c44da98b954eedeac495271d0f': 1,  // DAI   (MakerDAO)
+  '0x4fabb145d64652a948d72533023f6e7a623c7c53': 1,  // BUSD  (Paxos)
+  '0x0000000000085d4780b73119b644ae5ecd22b376': 1,  // TUSD  (TrueUSD)
+  '0x853d955acef822db058eb8505911ed77f175b99e': 1,  // FRAX
+  '0x8e870d67f660d95d5be530380d0ec0bd388289e1': 1,  // USDP  (Pax Dollar)
+  '0x056fd409e1d7a124bd7017459dfea2f387b6d5cd': 1,  // GUSD  (Gemini)
+  '0x5f98805a4e8be255a32880fdec7f6728c6568ba0': 1,  // LUSD  (Liquity)
+  '0x57ab1ec28d129707052df4df418d58a2d46d5f51': 1,  // sUSD  (Synthetix)
+  '0x8260ff3e79a6a2c69e24476dcc1a11d1c78c5e67': 1,  // USDTB (BlackRock)
+};
+
+// Symbols of stablecoins we recognise — used only to detect impostors
+const KNOWN_STABLE_SYMBOLS = new Set(
+  ['USDT', 'USDC', 'DAI', 'BUSD', 'TUSD', 'FRAX', 'USDP', 'GUSD', 'LUSD', 'SUSD', 'USDTB']
+);
 
 // ── Suspicious token detection ────────────────────────────────────────────────
 const URL_PATTERN    = /\.(com|net|org|io|finance|xyz|app|pro|vip|top|co|cc|me|us|info)\b/i;
 const PHISH_PATTERN  = /claim|reward|airdrop|bonus|free\s|win\b|prize|staked|pooled|voucher|refund/i;
 const DUST_AMOUNTS   = new Set(['1', '2', '10', '100']);   // classic dust attack amounts
 
-function detectSuspicious(name: string, symbol: string, amount: string): { flag: boolean; reason: string } {
+function detectSuspicious(
+  name: string, symbol: string, amount: string, verified: boolean
+): { flag: boolean; reason: string } {
   const combined = `${name} ${symbol}`;
   if (URL_PATTERN.test(combined))   return { flag: true, reason: 'Token name contains a URL — likely phishing dust' };
   if (PHISH_PATTERN.test(combined)) return { flag: true, reason: 'Token name suggests a phishing scam' };
   if (DUST_AMOUNTS.has(amount) && name && name.length > 10)
     return { flag: true, reason: 'Suspicious round amount — possible dust attack' };
+  // Stablecoin impersonator: symbol matches a known stable but contract is not canonical
+  if (!verified && KNOWN_STABLE_SYMBOLS.has((symbol || '').toUpperCase()))
+    return { flag: true, reason: `Unverified ${symbol} contract — likely impersonating a stablecoin` };
   return { flag: false, reason: '' };
 }
 
@@ -96,8 +123,11 @@ export async function getPortfolio(address: string, ethPrice: number): Promise<P
 
     const amount    = tokenToDecimalNumber(net.toString(), data.decimal);
     const amountStr = amount.toLocaleString('en-US', { maximumFractionDigits: 6 });
-    const usdValue  = isStablecoin(data.symbol) ? Math.round(amount * 100) / 100 : 0;
-    const { flag, reason } = detectSuspicious(data.name, data.symbol, amountStr);
+    // USD value only for verified canonical stablecoin contracts — never by symbol alone
+    const peg      = VERIFIED_STABLECOINS[contract];   // contract is already lowercased
+    const verified = peg !== undefined;
+    const usdValue = verified ? Math.round(amount * peg * 100) / 100 : 0;
+    const { flag, reason } = detectSuspicious(data.name, data.symbol, amountStr, verified);
 
     assets.push({
       asset_name:       data.name  || '—',
