@@ -27,4 +27,8 @@ export const config = {
   // Groq
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+
+  // Report branding
+  reportCompanyName: process.env.REPORT_COMPANY_NAME || 'Cripto IR',
+  reportLogoUrl: process.env.REPORT_LOGO_URL || null,
 };

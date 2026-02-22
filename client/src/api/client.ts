@@ -108,6 +108,14 @@ export const api = {
     }),
 
   // Report
-  generateReport: (address: string, format: 'html' | 'md' = 'html') =>
-    fetch(`${BASE}/report/${address}?format=${format}`, { method: 'POST' }).then(r => r.text()),
+  generateReport: (
+    address: string,
+    format: 'html' | 'md' = 'html',
+    branding: { logoUrl?: string; companyName?: string; caseRef?: string } = {}
+  ) =>
+    fetch(`${BASE}/report/${address}?format=${format}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(branding),
+    }).then(r => r.text()),
 };
