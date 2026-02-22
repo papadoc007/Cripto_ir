@@ -3,10 +3,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cripto IR - Blockchain Investigation</title>
+  <title>Cripto IR — Blockchain Forensics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --bg:           #07090f;
+      --bg2:          #0b0e19;
+      --surface:      #0d1120;
+      --surface2:     #111827;
+      --border:       rgba(240,165,0,0.11);
+      --border-h:     rgba(240,165,0,0.38);
+      --amber:        #f0a500;
+      --amber-dim:    rgba(240,165,0,0.55);
+      --amber-glow:   rgba(240,165,0,0.12);
+      --teal:         #00d4aa;
+      --teal-dim:     rgba(0,212,170,0.5);
+      --red:          #ff4d6a;
+      --text:         #ddd8cc;
+      --text-dim:     #5a5650;
+      --text-mid:     #9a9080;
+      --mono:         #b8a882;
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0e27; color: #e0e0e0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Dot-grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(240,165,0,0.045) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Subtle vignette */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, transparent 60%, rgba(7,9,15,0.7) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #root { position: relative; z-index: 1; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(240,165,0,0.2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(240,165,0,0.4); }
+
+    /* Panel component with corner brackets */
+    .panel {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      transition: border-color 0.25s;
+    }
+    .panel:hover { border-color: var(--border-h); }
+
+    /* Corner bracket accents */
+    .panel::before, .panel::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--amber-dim);
+      border-style: solid;
+      transition: border-color 0.25s;
+      z-index: 1;
+    }
+    .panel::before { top: -1px; left: -1px;  border-width: 2px 0 0 2px; }
+    .panel::after  { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+    .panel .corner-bl::before, .panel .corner-br::before { display: none; }
+
+    .panel-corners::before,
+    .panel-corners::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--amber-dim);
+      border-style: solid;
+      z-index: 1;
+    }
+    .panel-corners-bl { bottom: -1px; left: -1px;  border-width: 0 0 2px 2px; }
+    .panel-corners-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    /* Section label */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--amber);
+      opacity: 0.7;
+    }
+
+    /* Card title */
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+
+    /* Pulse dot */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+    .pulse { animation: pulse-dot 2s ease-in-out infinite; }
+
+    /* Fade-in stagger for dashboard */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeUp 0.45s ease both; }
+    .delay-1 { animation-delay: 0.06s; }
+    .delay-2 { animation-delay: 0.12s; }
+    .delay-3 { animation-delay: 0.18s; }
+    .delay-4 { animation-delay: 0.24s; }
+    .delay-5 { animation-delay: 0.30s; }
+    .delay-6 { animation-delay: 0.36s; }
+    .delay-7 { animation-delay: 0.42s; }
+    .delay-8 { animation-delay: 0.48s; }
+    .delay-9 { animation-delay: 0.54s; }
+
+    /* Scan line on hero */
+    @keyframes scan {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
   </style>
 </head>
 <body>
