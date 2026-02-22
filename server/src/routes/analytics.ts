@@ -41,7 +41,10 @@ router.get('/:addr/tokens', (req, res, next) => {
 router.get('/:addr/graph', (req, res, next) => {
   try {
     const hops = parseInt(req.query.hops as string) || 1;
-    res.json(getTransferGraph(req.params.addr, hops));
+    const limitParam = req.query.limit as string;
+    const limit = limitParam === 'all' ? 0 : (parseInt(limitParam) || 10);
+    const firstFunder = getFirstFunder(req.params.addr);
+    res.json(getTransferGraph(req.params.addr, hops, limit, firstFunder?.funder_address));
   } catch (err) { next(err); }
 });
 

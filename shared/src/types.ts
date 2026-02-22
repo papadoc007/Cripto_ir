@@ -151,6 +151,8 @@ export interface GraphNode {
   id: string;
   label: string | null;
   is_investigated: boolean;
+  is_first_funder?: boolean;
+  tx_count?: number;
 }
 
 export interface GraphLink {
