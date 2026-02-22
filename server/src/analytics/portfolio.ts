@@ -56,7 +56,7 @@ export async function getPortfolio(address: string, ethPrice: number): Promise<P
   const contractMap = new Map<string, TokenEntry>();
 
   for (const row of rows) {
-    const key = row.contract_address;
+    const key = row.contract_address.toLowerCase();  // normalise case — same contract can appear mixed/lower
     if (!contractMap.has(key)) {
       contractMap.set(key, {
         name: row.token_name || '',
@@ -89,7 +89,7 @@ export async function getPortfolio(address: string, ethPrice: number): Promise<P
   });
 
   // ── Token entries ──────────────────────────────────────────────────────────
-  for (const [contract, data] of contractMap.entries()) {
+  for (const [contract, data] of contractMap.entries()) {  // contract is already lowercased
     const net = data.inflow - data.outflow;
     // Skip fully-spent tokens
     if (net <= 0n) continue;
