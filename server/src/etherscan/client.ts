@@ -54,6 +54,21 @@ export async function etherscanCall(params: Record<string, string>): Promise<Rec
   throw new Error('Etherscan: max retries exceeded');
 }
 
+export async function getEthBalance(address: string): Promise<string> {
+  await rateLimiter.acquire();
+  const url = new URL(ETHERSCAN_BASE_URL);
+  url.searchParams.set('chainid', '1');
+  url.searchParams.set('apikey', config.etherscanApiKey);
+  url.searchParams.set('module', 'account');
+  url.searchParams.set('action', 'balance');
+  url.searchParams.set('address', address);
+  url.searchParams.set('tag', 'latest');
+  const response = await fetch(url.toString());
+  if (!response.ok) return '0';
+  const json = await response.json() as { status: string; result: string };
+  return json.status === '1' ? (json.result || '0') : '0';
+}
+
 export async function getLatestBlockNumber(): Promise<number> {
   await rateLimiter.acquire();
 

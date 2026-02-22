@@ -7,6 +7,7 @@ import { getTransferGraph } from '../analytics/graph.js';
 import { getHeuristics } from '../analytics/heuristics.js';
 import { getFirstFunder } from '../analytics/firstFunder.js';
 import { getFullTransactionList } from '../analytics/transactionList.js';
+import { getPortfolio } from '../analytics/portfolio.js';
 import { getEthUsdPrice } from '../utils/ethPrice.js';
 
 const router = Router();
@@ -52,6 +53,13 @@ router.get('/:addr/graph', (req, res, next) => {
 router.get('/:addr/heuristics', (req, res, next) => {
   try {
     res.json(getHeuristics(req.params.addr));
+  } catch (err) { next(err); }
+});
+
+router.get('/:addr/portfolio', async (req, res, next) => {
+  try {
+    const ethPrice = await getEthUsdPrice();
+    res.json(await getPortfolio(req.params.addr, ethPrice));
   } catch (err) { next(err); }
 });
 

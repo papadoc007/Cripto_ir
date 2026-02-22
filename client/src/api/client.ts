@@ -88,6 +88,9 @@ export const api = {
   getHeuristics: (address: string) =>
     fetchJson<unknown[]>(`/analytics/${address}/heuristics`),
 
+  getPortfolio: (address: string) =>
+    fetchJson<{ assets: unknown[]; snapshot_date: string; total_usd: number; suspicious_count: number }>(`/analytics/${address}/portfolio`),
+
   getFirstFunder: (address: string) =>
     fetchJson<FirstFunder | null>(`/analytics/${address}/first-funder`),
 

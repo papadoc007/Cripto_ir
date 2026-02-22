@@ -189,3 +189,20 @@ export interface QueryResult {
   results: Record<string, unknown>[];
   narrative: string;
 }
+
+export interface PortfolioAsset {
+  asset_name: string;
+  asset_symbol: string;
+  contract_address: string | null;
+  amount: string;        // human-readable decimal string
+  usd_value: number;
+  is_suspicious: boolean;
+  suspicious_reason?: string;
+}
+
+export interface PortfolioSnapshot {
+  assets: PortfolioAsset[];
+  snapshot_date: string;
+  total_usd: number;
+  suspicious_count: number;
+}

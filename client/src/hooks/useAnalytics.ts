@@ -55,6 +55,10 @@ export function useHeuristics(address: string) {
   return useAnalytics(() => api.getHeuristics(address), [address]);
 }
 
+export function usePortfolio(address: string) {
+  return useAnalytics(() => api.getPortfolio(address), [address]);
+}
+
 export function useFirstFunder(address: string) {
   return useAnalytics(() => api.getFirstFunder(address), [address]);
 }

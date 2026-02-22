@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import SyncProgress from '../components/SyncProgress';
+import PortfolioSnapshot from '../components/PortfolioSnapshot';
 import FirstFunderCard from '../components/FirstFunderCard';
 import CashflowChart from '../components/CashflowChart';
 import TimelineChart from '../components/TimelineChart';
@@ -148,8 +149,15 @@ export default function DashboardPage() {
       {/* ── Grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1rem' }}>
 
-        {/* First Funder — full width */}
+        {/* Portfolio Snapshot — top, full width */}
         <div className="fade-in delay-1" style={{ gridColumn: '1 / -1' }}>
+          <Panel label="Portfolio Snapshot">
+            <PortfolioSnapshot address={address} />
+          </Panel>
+        </div>
+
+        {/* First Funder — full width */}
+        <div className="fade-in delay-2" style={{ gridColumn: '1 / -1' }}>
           <Panel label="First Funder">
             <FirstFunderCard address={address} />
           </Panel>
