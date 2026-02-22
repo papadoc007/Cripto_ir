@@ -47,8 +47,8 @@ export function useTokens(address: string) {
   return useAnalytics(() => api.getTokens(address), [address]);
 }
 
-export function useGraph(address: string, hops = 1, limit: number | 'all' = 10) {
-  return useAnalytics(() => api.getGraph(address, hops, limit), [address, hops, limit]);
+export function useGraph(address: string, hops = 1, limit: number | 'all' = 10, sortBy: 'tx_count' | 'volume' = 'tx_count') {
+  return useAnalytics(() => api.getGraph(address, hops, limit, sortBy), [address, hops, limit, sortBy]);
 }
 
 export function useHeuristics(address: string) {

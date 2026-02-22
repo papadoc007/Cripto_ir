@@ -43,8 +43,9 @@ router.get('/:addr/graph', (req, res, next) => {
     const hops = parseInt(req.query.hops as string) || 1;
     const limitParam = req.query.limit as string;
     const limit = limitParam === 'all' ? 0 : (parseInt(limitParam) || 10);
+    const sortBy = (req.query.sortBy as string) === 'volume' ? 'volume' : 'tx_count';
     const firstFunder = getFirstFunder(req.params.addr);
-    res.json(getTransferGraph(req.params.addr, hops, limit, firstFunder?.funder_address));
+    res.json(getTransferGraph(req.params.addr, hops, limit, firstFunder?.funder_address, sortBy));
   } catch (err) { next(err); }
 });
 

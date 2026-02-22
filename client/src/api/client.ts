@@ -82,8 +82,8 @@ export const api = {
   getTokens: (address: string) =>
     fetchJson<unknown[]>(`/analytics/${address}/tokens`),
 
-  getGraph: (address: string, hops = 1, limit: number | 'all' = 10) =>
-    fetchJson<{ nodes: unknown[]; links: unknown[] }>(`/analytics/${address}/graph?hops=${hops}&limit=${limit}`),
+  getGraph: (address: string, hops = 1, limit: number | 'all' = 10, sortBy: 'tx_count' | 'volume' = 'tx_count') =>
+    fetchJson<{ nodes: unknown[]; links: unknown[] }>(`/analytics/${address}/graph?hops=${hops}&limit=${limit}&sortBy=${sortBy}`),
 
   getHeuristics: (address: string) =>
     fetchJson<unknown[]>(`/analytics/${address}/heuristics`),

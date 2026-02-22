@@ -24,6 +24,7 @@ interface GraphLink {
 }
 
 type GraphMode = 'minimal' | 'top10' | 'top25' | 'full';
+type SortBy = 'tx_count' | 'volume';
 
 const MODE_LABELS: Record<GraphMode, string> = {
   minimal: 'Focus',
@@ -36,6 +37,10 @@ const MODE_LIMITS: Record<GraphMode, number | 'all'> = {
   top10: 10,
   top25: 25,
   full: 'all',
+};
+const SORT_LABELS: Record<SortBy, string> = {
+  tx_count: 'By Count',
+  volume: 'By Volume',
 };
 
 // ── Colors ────────────────────────────────────────────────────────────────────
@@ -115,10 +120,11 @@ function nodeAt(nodes: GraphNode[], mx: number, my: number, r = 16): GraphNode |
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function FlowGraph({ address }: { address: string }) {
   const [mode, setMode] = useState<GraphMode>('minimal');
+  const [sortBy, setSortBy] = useState<SortBy>('tx_count');
   const [tooltip, setTooltip] = useState<{ x: number; y: number; node: GraphNode } | null>(null);
 
   const limit = MODE_LIMITS[mode];
-  const { data: graphData, loading, error } = useGraph(address, 1, limit);
+  const { data: graphData, loading, error } = useGraph(address, 1, limit, sortBy);
   const { data: funderData } = useFirstFunder(address);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -352,6 +358,24 @@ export default function FlowGraph({ address }: { address: string }) {
             {MODE_LABELS[m]}
           </button>
         ))}
+
+        {/* Sort toggle — only relevant when showing multiple counterparties */}
+        {mode !== 'minimal' && (
+          <>
+            <span style={{ ...s.toolbarLabel, marginLeft: '0.75rem' }}>Sort:</span>
+            {(Object.keys(SORT_LABELS) as SortBy[]).map(sv => (
+              <button
+                key={sv}
+                style={sortBy === sv
+                  ? { ...s.modeBtn(true), background: '#0e7490' }   // teal when active
+                  : s.modeBtn(false)}
+                onClick={() => setSortBy(sv)}
+              >
+                {SORT_LABELS[sv]}
+              </button>
+            ))}
+          </>
+        )}
 
         {!loading && nodeCount > 0 && (
           <span style={{ fontSize: '0.75rem', color: '#6060a0', marginLeft: '0.5rem' }}>
