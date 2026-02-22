@@ -20,19 +20,7 @@ export function getCounterparties(address: string, limit = 50): CounterpartyData
   `).all(addr, addr, limit) as { counterparty: string; tx_count: number; first_seen: number; last_seen: number }[];
 
   return rows.map(row => {
-    const inflows = db.prepare(`
-      SELECT COALESCE(SUM(CAST(value AS TEXT)), '0') as total
-      FROM transactions
-      WHERE from_address = ? AND to_address = ?
-    `).get(row.counterparty, addr) as { total: string };
-
-    const outflows = db.prepare(`
-      SELECT COALESCE(SUM(CAST(value AS TEXT)), '0') as total
-      FROM transactions
-      WHERE from_address = ? AND to_address = ?
-    `).get(addr, row.counterparty) as { total: string };
-
-    // Use BigInt sum for precision
+    // Use BigInt sum for precision — avoids SQLite 64-bit integer overflow on large wei values
     const inTxs = db.prepare(`
       SELECT value FROM transactions WHERE from_address = ? AND to_address = ?
     `).all(row.counterparty, addr) as { value: string }[];
