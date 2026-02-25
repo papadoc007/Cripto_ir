@@ -31,4 +31,7 @@ export const config = {
   // Report branding
   reportCompanyName: process.env.REPORT_COMPANY_NAME || 'Cripto IR',
   reportLogoUrl: process.env.REPORT_LOGO_URL || null,
+
+  // ChainAbuse
+  chainabuseApiKey: process.env.CHAINABUSE_API_KEY ?? '',
 };

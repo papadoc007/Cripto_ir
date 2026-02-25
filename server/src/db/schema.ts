@@ -111,5 +111,12 @@ export function initSchema(): void {
     CREATE INDEX IF NOT EXISTS idx_it_from ON internal_transactions(from_address);
     CREATE INDEX IF NOT EXISTS idx_it_to ON internal_transactions(to_address);
     CREATE INDEX IF NOT EXISTS idx_ait_address ON address_internal_txs(address);
+
+    CREATE TABLE IF NOT EXISTS chainabuse_cache (
+      address TEXT PRIMARY KEY,
+      report_count INTEGER NOT NULL,
+      reports_json TEXT NOT NULL,
+      fetched_at INTEGER NOT NULL
+    );
   `);
 }

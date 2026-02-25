@@ -9,6 +9,7 @@ import TokenTable from '../components/TokenTable';
 import TransactionTable from '../components/TransactionTable';
 import FlowGraph from '../components/FlowGraph';
 import HeuristicFlags from '../components/HeuristicFlags';
+import ChainAbusePanel from '../components/ChainAbusePanel';
 import ChatPanel from '../components/ChatPanel';
 import { useSSE } from '../hooks/useSSE';
 
@@ -195,6 +196,13 @@ export default function DashboardPage() {
         <div className="fade-in delay-4" style={{ gridColumn: '1 / -1' }}>
           <Panel label="Suspicious Activity Flags">
             <HeuristicFlags address={address} />
+          </Panel>
+        </div>
+
+        {/* ChainAbuse — full width */}
+        <div className="fade-in delay-4" style={{ gridColumn: '1 / -1' }}>
+          <Panel label="ChainAbuse Scam Lookup">
+            <ChainAbusePanel address={address} />
           </Panel>
         </div>
 

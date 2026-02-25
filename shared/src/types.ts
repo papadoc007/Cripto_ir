@@ -190,6 +190,22 @@ export interface QueryResult {
   narrative: string;
 }
 
+export interface ChainAbuseReportSummary {
+  address: string;
+  report_count: number;
+  top_categories: string[];
+  latest_report_date?: string;
+  chainabuse_url: string;
+  from_cache: boolean;
+  cached_at?: string;
+}
+
+export interface ChainAbuseResult {
+  main: ChainAbuseReportSummary;
+  counterparties: ChainAbuseReportSummary[];
+  api_key_missing?: boolean;
+}
+
 export interface PortfolioAsset {
   asset_name: string;
   asset_symbol: string;

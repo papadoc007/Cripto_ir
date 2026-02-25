@@ -9,6 +9,7 @@ import { getFirstFunder } from '../analytics/firstFunder.js';
 import { getFullTransactionList } from '../analytics/transactionList.js';
 import { getPortfolio } from '../analytics/portfolio.js';
 import { getEthUsdPrice } from '../utils/ethPrice.js';
+import { getChainAbuseData, clearCache } from '../analytics/chainabuse.js';
 
 const router = Router();
 
@@ -81,6 +82,21 @@ router.get('/:addr/transactions', async (req, res, next) => {
       offset, limit, direction: direction as 'in' | 'out' | 'self' | 'all', sort,
     });
     res.json(result);
+  } catch (err) { next(err); }
+});
+
+router.get('/:addr/chainabuse', async (req, res, next) => {
+  try {
+    const checkCounterparties = req.query.counterparties === 'true';
+    const result = await getChainAbuseData(req.params.addr, checkCounterparties);
+    res.json(result);
+  } catch (err) { next(err); }
+});
+
+router.delete('/:addr/chainabuse/cache', (req, res, next) => {
+  try {
+    clearCache(req.params.addr);
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 

@@ -103,6 +103,12 @@ export const api = {
     return fetchJson<{ rows: TransactionRow[]; total: number }>(`/analytics/${address}/transactions?${params}`);
   },
 
+  getChainAbuse: (address: string, counterparties = false) =>
+    fetchJson<import('@cripto-ir/shared').ChainAbuseResult>(`/analytics/${address}/chainabuse?counterparties=${counterparties}`),
+
+  clearChainAbuseCache: (address: string) =>
+    fetch(`${BASE}/analytics/${address}/chainabuse/cache`, { method: 'DELETE' }).then(r => r.json()),
+
   // Query
   askQuestion: (question: string, address: string) =>
     fetchJson<{ plan: unknown; results: unknown[]; narrative: string }>('/query', {
